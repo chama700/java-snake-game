@@ -9,26 +9,25 @@ import java.util.Random;
 
 public class GamePanel extends JPanel implements ActionListener {
     private static final int UNIT_SIZE = 30;
-    private static final int COLS = 40;
-    private static final int ROWS = 25;
-    private static final int SCREEN_WIDTH = COLS * UNIT_SIZE;
+    private static final int COLS = 40; 
+    private static final int ROWS = 25; 
+    private static final int SCREEN_WIDTH = COLS * UNIT_SIZE; 
     private static final int SCREEN_HEIGHT = ROWS * UNIT_SIZE;
     private static final int GAME_UNITS = COLS * ROWS;
     private static final int DELAY = 150;
 
     private final int[] x = new int[GAME_UNITS];
     private final int[] y = new int[GAME_UNITS];
-    private int bodyParts = 6;
-    private int applesEaten;
-    private int appleX, appleY;
+    private int bodyParts = 6; //length
+    private int applesEaten; // score
+    private int appleX, appleY; // Apple position
     private char direction = 'R';
     private boolean running = false;
     private boolean paused = false;
     private Timer timer;
-    private final Random random = new Random();
-    private final ArrayList<Point> obstacles = new ArrayList<>();
+    private final Random random = new Random(); // For random positions
+    private final ArrayList<Point> obstacles = new ArrayList<>(); // Store obstacles
     private Image appleImage;
-    private Image backgroundImage;
     private Image snakeHeadImage;
     private Image obstacleImage;
 
@@ -53,15 +52,8 @@ public class GamePanel extends JPanel implements ActionListener {
         );
 
         final Color backgroundPrimary;
-        final Color backgroundSecondary;
-        final Color snakeHeadBase;
-        final Color snakeHeadHighlight;
         final Color snakeBodyBase;
         final Color snakeBodyDark;
-        final Color appleRed;
-        final Color appleHighlight;
-        final Color obstacleBase;
-        final Color obstacleHighlight;
         final Color neonGreen;
         final Color gold;
 
@@ -69,15 +61,8 @@ public class GamePanel extends JPanel implements ActionListener {
               Color bodyBase, Color bodyDark, Color appleRed, Color appleHighlight,
               Color obsBase, Color obsHighlight, Color neonGreen, Color gold) {
             this.backgroundPrimary = bgPrimary;
-            this.backgroundSecondary = bgSecondary;
-            this.snakeHeadBase = headBase;
-            this.snakeHeadHighlight = headHighlight;
             this.snakeBodyBase = bodyBase;
             this.snakeBodyDark = bodyDark;
-            this.appleRed = appleRed;
-            this.appleHighlight = appleHighlight;
-            this.obstacleBase = obsBase;
-            this.obstacleHighlight = obsHighlight;
             this.neonGreen = neonGreen;
             this.gold = gold;
         }
@@ -89,12 +74,14 @@ public class GamePanel extends JPanel implements ActionListener {
     private float pulseAnimation = 0;
     private final Timer animationTimer;
 
+ // Constructor
     public GamePanel() {
         setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
         setBackground(currentTheme.backgroundPrimary);
         setFocusable(true);
         addKeyListener(new MyKeyAdapter());
         
+     // Load images
         appleImage = new ImageIcon(getClass().getResource("apple.png")).getImage();
         snakeHeadImage = new ImageIcon(getClass().getResource("snake_head.png")).getImage();
         obstacleImage = new ImageIcon(getClass().getResource("cactus.png")).getImage();
@@ -154,18 +141,6 @@ public class GamePanel extends JPanel implements ActionListener {
                 g2d.drawLine(0, i * UNIT_SIZE, SCREEN_WIDTH, i * UNIT_SIZE);
             }
         }
-    }
-
-
-    private void drawAmbientGlow(Graphics2D g2d) {
-        float pulse = (float) Math.sin(pulseAnimation) * 0.3f + 0.7f;
-        g2d.setPaint(new RadialGradientPaint(0, 0, 200, new float[]{0f, 1f},
-                new Color[]{new Color(currentTheme.neonGreen.getRed(), currentTheme.neonGreen.getGreen(), currentTheme.neonGreen.getBlue(), (int)(30 * pulse)), new Color(currentTheme.neonGreen.getRed(), currentTheme.neonGreen.getGreen(), currentTheme.neonGreen.getBlue(), 0)}));
-        g2d.fillRect(0, 0, 400, 400);
-
-        g2d.setPaint(new RadialGradientPaint(SCREEN_WIDTH, SCREEN_HEIGHT, 150, new float[]{0f, 1f},
-                new Color[]{new Color(currentTheme.obstacleBase.getRed(), currentTheme.obstacleBase.getGreen(), currentTheme.obstacleBase.getBlue(), (int)(25 * pulse)), new Color(currentTheme.obstacleBase.getRed(), currentTheme.obstacleBase.getGreen(), currentTheme.obstacleBase.getBlue(), 0)}));
-        g2d.fillRect(SCREEN_WIDTH - 300, SCREEN_HEIGHT - 300, 300, 300);
     }
 
     private void draw(Graphics2D g2d) {
@@ -273,78 +248,6 @@ public class GamePanel extends JPanel implements ActionListener {
                 if (isHead || (i + j) % 2 == 0) {
                     g2d.drawOval(scaleX - scaleSize/2, scaleY - scaleSize/2, scaleSize, scaleSize);
                 }
-            }
-        }
-    }
-
-    private void drawSnakeEyes(Graphics2D g2d, int headX, int headY, int size, int offset) {
-        int eyeSize = size / 6;
-        int pupilSize = eyeSize / 2;
-        Point leftEye = new Point();
-        Point rightEye = new Point();
-
-        switch (direction) {
-            case 'R' -> {
-                leftEye.setLocation(headX + offset + size * 3/4, headY + offset + size/3);
-                rightEye.setLocation(headX + offset + size * 3/4, headY + offset + size * 2/3);
-            }
-            case 'L' -> {
-                leftEye.setLocation(headX + offset + size/4, headY + offset + size/3);
-                rightEye.setLocation(headX + offset + size/4, headY + offset + size * 2/3);
-            }
-            case 'U' -> {
-                leftEye.setLocation(headX + offset + size/3, headY + offset + size/4);
-                rightEye.setLocation(headX + offset + size * 2/3, headY + offset + size/4);
-            }
-            case 'D' -> {
-                leftEye.setLocation(headX + offset + size/3, headY + offset + size * 3/4);
-                rightEye.setLocation(headX + offset + size * 2/3, headY + offset + size * 3/4);
-            }
-        }
-
-        drawEye(g2d, leftEye.x, leftEye.y, eyeSize, pupilSize);
-        drawEye(g2d, rightEye.x, rightEye.y, eyeSize, pupilSize);
-    }
-
-    private void drawEye(Graphics2D g2d, int x, int y, int eyeSize, int pupilSize) {
-        g2d.setColor(new Color(255, 255, 255, 200));
-        g2d.fillOval(x - eyeSize/2, y - eyeSize/2, eyeSize, eyeSize);
-
-        g2d.setColor(new Color(255, 215, 0, 180));
-        g2d.fillOval(x - pupilSize/2, y - pupilSize/2, pupilSize, pupilSize);
-
-        g2d.setColor(Color.BLACK);
-        int pupilOffset = pupilSize / 4;
-        g2d.fillOval(x - pupilOffset, y - pupilOffset, pupilOffset * 2, pupilOffset * 2);
-
-        g2d.setColor(new Color(255, 255, 255, 180));
-        g2d.fillOval(x - pupilOffset/2, y - pupilOffset/2, pupilOffset/2, pupilOffset/2);
-
-        g2d.setColor(new Color(0, 0, 0, 100));
-        g2d.setStroke(new BasicStroke(1));
-        g2d.drawOval(x - eyeSize/2, y - eyeSize/2, eyeSize, eyeSize);
-    }
-
-    private void drawSnakeNostrils(Graphics2D g2d, int headX, int headY, int size, int offset) {
-        g2d.setColor(new Color(0, 0, 0, 150));
-        int nostrilSize = 2;
-
-        switch (direction) {
-            case 'R' -> {
-                g2d.fillOval(headX + offset + size - 6, headY + offset + size/2 - 3, nostrilSize, nostrilSize);
-                g2d.fillOval(headX + offset + size - 6, headY + offset + size/2 + 1, nostrilSize, nostrilSize);
-            }
-            case 'L' -> {
-                g2d.fillOval(headX + offset + 4, headY + offset + size/2 - 3, nostrilSize, nostrilSize);
-                g2d.fillOval(headX + offset + 4, headY + offset + size/2 + 1, nostrilSize, nostrilSize);
-            }
-            case 'U' -> {
-                g2d.fillOval(headX + offset + size/2 - 3, headY + offset + 4, nostrilSize, nostrilSize);
-                g2d.fillOval(headX + offset + size/2 + 1, headY + offset + 4, nostrilSize, nostrilSize);
-            }
-            case 'D' -> {
-                g2d.fillOval(headX + offset + size/2 - 3, headY + offset + size - 6, nostrilSize, nostrilSize);
-                g2d.fillOval(headX + offset + size/2 + 1, headY + offset + size - 6, nostrilSize, nostrilSize);
             }
         }
     }
